@@ -38,11 +38,15 @@ const LAYERS = {
     `split the picture into 8 colours: slate = inside none of them, red / blue / gold = inside just one, ` +
     `purple / orange / green = inside two, white = inside all three. Each colour is one connected region, however ` +
     `tangled it looks.`},
+  original: {label: 'Original (dark)', only: [17, 19], text: n =>
+    `The original picture: all ${n} curves drawn as glowing lines (the image used in the paper and posts), at ` +
+    `8000 px. Zoom in to see individual curves and the regions between them.`},
 };
 const q = new URLSearchParams(location.search);
 let n = +(q.get('n') || 17); if (!DIAGRAMS[n]) n = 17;
-let layer = q.get('layer') || 'fill'; if (!LAYERS[layer]) layer = 'fill';
 const d = DIAGRAMS[n];
+const available = k => !LAYERS[k].only || LAYERS[k].only.includes(n);
+let layer = q.get('layer') || 'fill'; if (!LAYERS[layer] || !available(layer)) layer = 'fill';
 document.title = `Venn inspector: ${d.name}`;
 document.getElementById('title').textContent = `${d.name}, ${d.regions} regions`;
 const dg = document.getElementById('diagrams');
@@ -69,8 +73,10 @@ function show(l, keepView) {
 }
 const lg = document.getElementById('layers');
 for (const [k, v] of Object.entries(LAYERS)) {
+  if (!available(k)) continue;
   const b = document.createElement('button'); b.textContent = v.label; b.dataset.l = k;
-  b.onclick = () => show(k, true); lg.appendChild(b);
+  // the original images are framed differently, so switching to or from them resets the view
+  b.onclick = () => show(k, k !== 'original' && layer !== 'original'); lg.appendChild(b);
 }
 show(layer, false);
 </script>
