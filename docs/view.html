@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Venn inspector</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/openseadragon@4.1.1/build/openseadragon/openseadragon.min.js"></script>
+</head>
+<body class="viewer">
+<header class="bar">
+  <h1><a href="./" style="color:inherit;text-decoration:none">Venn inspector</a> <span id="title" class="muted"></span></h1>
+  <div class="btns" id="diagrams"></div>
+  <div class="btns" id="layers"></div>
+</header>
+<div id="osd"></div>
+<div class="info" id="info"></div>
+<script>
+const DIAGRAMS = {
+  7:  {name: '7 curves', regions: '128', layout: 'circle-packed layout', three: [0, 2, 4]},
+  11: {name: '11 curves', regions: '2,048', layout: 'circle-packed layout', three: [0, 4, 7]},
+  13: {name: '13 curves', regions: '8,192', layout: 'circle-packed layout', three: [0, 4, 9]},
+  17: {name: '17 curves', regions: '131,072', layout: 'the published pressure layout', three: [0, 6, 11]},
+  19: {name: '19 curves', regions: '524,288', layout: 'a pressure layout', three: [0, 6, 13]},
+  23: {name: '23 curves', regions: '8,388,608', layout: 'a weighted spring (Tutte) layout', three: [0, 8, 16]},
+};
+const LAYERS = {
+  fill: {label: 'All curves', text: n =>
+    `Every point is coloured by exactly which of the ${n} curves contain it. Brightness is how many curves contain it ` +
+    `(the centre is inside all ${n}, the dark outer petals are inside one). Hue comes from adding a unit arrow for ` +
+    `each curve that contains the point, curve k pointing at angle 360k/${n} degrees, so turning the picture by one ` +
+    `curve turns every colour by 1/${n} of the colour wheel. Zoom in: every patch of one colour is one region.`},
+  one: {label: 'One curve', text: n =>
+    `Only curve 0 of the ${n}: gold is inside it, slate is outside it. All ${n} curves are this same shape, rotated. ` +
+    `Zoom in to follow its boundary.`},
+  three: {label: 'Three curves', text: (n, d) =>
+    `Only curves ${d.three.join(', ')}. Any few curves of a Venn diagram form a Venn diagram of their own, so these three ` +
+    `split the picture into 8 colours: slate = inside none of them, red / blue / gold = inside just one, ` +
+    `purple / orange / green = inside two, white = inside all three. Each colour is one connected region, however ` +
+    `tangled it looks.`},
+};
+const q = new URLSearchParams(location.search);
+let n = +(q.get('n') || 17); if (!DIAGRAMS[n]) n = 17;
+let layer = q.get('layer') || 'fill'; if (!LAYERS[layer]) layer = 'fill';
+const d = DIAGRAMS[n];
+document.title = `Venn inspector: ${d.name}`;
+document.getElementById('title').textContent = `${d.name}, ${d.regions} regions`;
+const dg = document.getElementById('diagrams');
+for (const k of Object.keys(DIAGRAMS)) {
+  const a = document.createElement('a'); a.className = 'btn'; a.textContent = k;
+  a.href = `view.html?n=${k}&layer=${layer}`; if (+k === n) a.style.borderColor = 'var(--accent)'; dg.appendChild(a);
+}
+const viewer = OpenSeadragon({
+  id: 'osd', prefixUrl: 'https://cdn.jsdelivr.net/npm/openseadragon@4.1.1/build/openseadragon/images/',
+  tileSources: [], showNavigator: true, navigatorPosition: 'BOTTOM_RIGHT', maxZoomPixelRatio: 4,
+  visibilityRatio: 0.5, gestureSettingsMouse: {clickToZoom: false}, background: '#06070b',
+});
+function show(l, keepView) {
+  layer = l;
+  const center = viewer.viewport ? viewer.viewport.getCenter() : null;
+  const zoom = viewer.viewport ? viewer.viewport.getZoom() : null;
+  viewer.open(`tiles/v${n}/${l}.dzi`);
+  if (keepView && center) viewer.addOnceHandler('open', () => { viewer.viewport.zoomTo(zoom, null, true); viewer.viewport.panTo(center, true); });
+  document.querySelectorAll('#layers button').forEach(b => b.classList.toggle('on', b.dataset.l === l));
+  document.getElementById('info').innerHTML = LAYERS[l].text(n, d) +
+    ` <span class="muted">Layout: ${d.layout}. Drag to pan, scroll or pinch to zoom.</span>` +
+    (n === 23 ? ' <a href="./#video">Zoom video of the 23</a>.' : '');
+  history.replaceState(null, '', `view.html?n=${n}&layer=${l}`);
+}
+const lg = document.getElementById('layers');
+for (const [k, v] of Object.entries(LAYERS)) {
+  const b = document.createElement('button'); b.textContent = v.label; b.dataset.l = k;
+  b.onclick = () => show(k, true); lg.appendChild(b);
+}
+show(layer, false);
+</script>
+</body>
+</html>

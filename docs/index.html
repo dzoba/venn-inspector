@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Venn inspector</title>
+<meta name="description" content="Zoomable pictures of simple symmetric Venn diagrams with 7 to 23 curves.">
+<meta property="og:title" content="Venn inspector">
+<meta property="og:description" content="Zoom into simple symmetric Venn diagrams with 7, 11, 13, 17, 19 and 23 curves.">
+<meta property="og:image" content="https://dzoba.github.io/venn-inspector/og.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+<h1>Venn inspector</h1>
+<p class="muted">Zoomable pictures of simple symmetric Venn diagrams, from 7 curves up to 23.</p>
+
+<p>A Venn diagram with <i>n</i> curves draws <i>n</i> closed curves so that every combination of
+"inside" and "outside" appears exactly once, as one connected region. With 3 curves that is the familiar
+picture with 8 regions. With 23 curves it is 2<sup>23</sup> = 8,388,608 regions.</p>
+
+<p>These are the special kind: <b>simple</b> (no point lies on three curves) and <b>symmetric</b> (turning
+the picture by 1/<i>n</i> of a full turn gives the same picture, so all <i>n</i> curves are the same shape).
+They can only exist when <i>n</i> is prime. Until 2026 the largest known were 11 and 13 curves (Mamakani and
+Ruskey). The 17, 19 and 23 here were found in September and October 2026 by a computer search run by two AI
+agents, Claude and Codex, directed by Chris Dzoba. Each is a certificate checked by independent programs, and one
+of each size also has a formal proof in Lean.</p>
+
+<h2>How to read the pictures</h2>
+<p>A picture of a 17-curve diagram drawn as 17 coloured lines is unreadable: the lines cross 131,070 times. So
+these pictures colour the <b>regions</b> instead. Every point gets a colour from exactly which curves contain it:</p>
+<ul>
+  <li><b>Brightness</b> is how many curves contain the point. The middle is inside every curve; the dark outer
+  petals are inside just one.</li>
+  <li><b>Hue</b> comes from adding one arrow per curve that contains the point, curve <i>k</i> pointing at angle
+  360<i>k</i>/<i>n</i> degrees. Turning the diagram by one curve turns every colour by 1/<i>n</i> of the colour
+  wheel, which is why the symmetry shows up as a rainbow going around.</li>
+</ul>
+<p>Each viewer has three layers. <b>All curves</b> is the full colouring. <b>One curve</b> shows just curve 0,
+inside versus outside; every curve is this same shape, rotated. <b>Three curves</b> shows three of the curves on
+their own, which always form an ordinary 8-region Venn diagram, just a very tangled one. Zoom in anywhere: every
+patch of one colour is a single region.</p>
+
+<h2>The diagrams</h2>
+<div class="grid">
+  <a class="card" href="view.html?n=7"><img src="tiles/v7/fill_files/8/0_0.jpg" alt="7-curve diagram"><div><b>7 curves</b><span>128 regions. Start here.</span></div></a>
+  <a class="card" href="view.html?n=11"><img src="tiles/v11/fill_files/8/0_0.jpg" alt="11-curve diagram"><div><b>11 curves</b><span>2,048 regions</span></div></a>
+  <a class="card" href="view.html?n=13"><img src="tiles/v13/fill_files/8/0_0.jpg" alt="13-curve diagram"><div><b>13 curves</b><span>8,192 regions</span></div></a>
+  <a class="card" href="view.html?n=17"><img src="tiles/v17/fill_files/8/0_0.jpg" alt="17-curve diagram"><div><b>17 curves</b><span>131,072 regions. New in 2026.</span></div></a>
+  <a class="card" href="view.html?n=19"><img src="tiles/v19/fill_files/8/0_0.jpg" alt="19-curve diagram"><div><b>19 curves</b><span>524,288 regions. New in 2026.</span></div></a>
+  <a class="card" href="view.html?n=23"><img src="tiles/v23/fill_files/8/0_0.jpg" alt="23-curve diagram"><div><b>23 curves</b><span>8,388,608 regions. New in 2026.</span></div></a>
+</div>
+
+<h2 id="video">Zooming into the 23</h2>
+<p>At 23 curves no single picture can show every region: most of the 8.4 million are far smaller than a pixel.
+This video uses a different, conformal (circle-packing) drawing in which every region is a compact cell, and zooms
+about two million times into the dense band. This layout is still being checked, so treat it as an illustration.</p>
+<video src="video/venn23-zoom-1080p.mp4" controls muted playsinline preload="metadata"></video>
+
+<h2>More</h2>
+<p>Paper: <a href="https://arxiv.org/abs/2609.26546">arXiv:2609.26546</a>.
+Certificates, checkers and Lean proofs: <a href="https://doi.org/10.5281/zenodo.23189412">doi:10.5281/zenodo.23189412</a>
+and <a href="https://github.com/dzoba/venn17">github.com/dzoba/venn17</a>.
+Found so far: four 17-curve, twelve 19-curve and six 23-curve diagrams. The pictures here show one of each.</p>
+<p class="muted">Rendering code is in <a href="https://github.com/dzoba/venn-inspector">this repository</a>.
+The 11 and 13 shown are ones found by the same search (they differ from the Mamakani and Ruskey diagrams).
+The 7, 11 and 13 are drawn by circle packing; the 17 and 19 by a pressure relaxation; the 23 by a weighted spring
+(Tutte) layout that was checked to have no crossing errors and every region where it should be.</p>
+</main>
+</body>
+</html>
